@@ -16,18 +16,22 @@ def generate_pdf(data):
 
     story = []
 
-    # Company Overview
+    # =========================
+    # COMPANY OVERVIEW
+    # =========================
     story.append(Paragraph("Company Overview", styles["Heading2"]))
     story.append(Paragraph(data.get("overview", "Unknown"), styles["Normal"]))
     story.append(Spacer(1, 12))
 
-    # Address / Contact
+    # Contact Info
     story.append(Paragraph(data.get("address", "Unknown"), styles["Normal"]))
     story.append(Paragraph(data.get("phone", "Unknown"), styles["Normal"]))
     story.append(Paragraph(data.get("website", "Unknown"), styles["Normal"]))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 16))
 
-    # Executives
+    # =========================
+    # EXECUTIVE SNAPSHOT
+    # =========================
     story.append(Paragraph("Executive Snapshot", styles["Heading2"]))
     executives = data.get("executives", [])
 
@@ -39,12 +43,35 @@ def generate_pdf(data):
     else:
         story.append(Paragraph("No executive data available", styles["Normal"]))
 
+    story.append(Spacer(1, 16))
+
+    # =========================
+    # SALES INTELLIGENCE
+    # =========================
+    story.append(Paragraph("Sales Intelligence", styles["Heading2"]))
+    story.append(Paragraph(data.get("sales_intelligence", "Not available"), styles["Normal"]))
+    story.append(Spacer(1, 16))
+
+    # =========================
+    # TECHNOLOGY INSIGHTS
+    # =========================
+    story.append(Paragraph("Technology Insights", styles["Heading2"]))
+    story.append(Paragraph(data.get("technology_insights", "Not available"), styles["Normal"]))
+    story.append(Spacer(1, 16))
+
+    # =========================
+    # PRINT ENVIRONMENT
+    # =========================
+    story.append(Paragraph("Print / Copier Environment", styles["Heading2"]))
+    story.append(Paragraph(data.get("print_environment", "Not available"), styles["Normal"]))
+    story.append(Spacer(1, 16))
+
     doc.build(story)
 
     return file_name
 
 
-# 🔴 MAIN PDF GENERATION ENDPOINT
+# 🔴 MAIN GENERATE ENDPOINT
 @app.route("/generate", methods=["POST"])
 def generate():
     data = request.json
@@ -56,7 +83,7 @@ def generate():
     }
 
 
-# 🔴 FILE SERVING ENDPOINT (REQUIRED FOR DOWNLOAD)
+# 🔴 FILE DOWNLOAD ENDPOINT
 @app.route('/<filename>')
 def download_file(filename):
     return send_from_directory(os.getcwd(), filename)
