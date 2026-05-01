@@ -1,15 +1,17 @@
-from flask import Flask, request
+from flask import Flask, request, send_from_directory
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
-import base64
+import os
 
 app = Flask(__name__)
 
 
 def generate_pdf(data):
     file_name = f"{data['company_name'].replace(' ', '')}.pdf"
-    doc = SimpleDocTemplate(file_name, pagesize=letter)
+    file_path = os.path.join(os.getcwd(), file_name)
+
+    doc = SimpleDocTemplate(file_path, pagesize=letter)
     styles = getSampleStyleSheet()
 
     story = []
@@ -42,19 +44,22 @@ def generate_pdf(data):
     return file_name
 
 
+# 🔴 MAIN PDF GENERATION ENDPOINT
 @app.route("/generate", methods=["POST"])
 def generate():
     data = request.json
 
-    file_path = generate_pdf(data)
-
-    with open(file_path, "rb") as f:
-        encoded = base64.b64encode(f.read()).decode("utf-8")
+    file_name = generate_pdf(data)
 
     return {
-        "file_name": file_path,
-        "file_data": encoded
+        "file_url": f"https://abs-pdf.onrender.com/{file_name}"
     }
+
+
+# 🔴 FILE SERVING ENDPOINT (REQUIRED FOR DOWNLOAD)
+@app.route('/<filename>')
+def download_file(filename):
+    return send_from_directory(os.getcwd(), filename)
 
 
 if __name__ == "__main__":
